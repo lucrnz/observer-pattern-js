@@ -1,0 +1,45 @@
+@startuml
+interface AbstractMessage {
+  +payload(): Record<string, unknown>
+}
+
+interface AbstractListener {
+  +id(): string
+  +update(message: AbstractMessage): Promise<void>
+}
+
+interface AbstractPublisher {
+  +addListener(listener: AbstractListener): Promise<void>
+  +removeListener(listener: AbstractListener): Promise<void>
+  +notifyListeners(message: AbstractMessage): Promise<void>
+}
+
+AbstractMessage <|-- Message
+AbstractListener <|-- Listener
+AbstractPublisher <|-- Publisher
+
+class Message {
+  -#subject: string
+  -#content: string
+  +Message(subject: string, content: string)
+  +payload(): Record<string, unknown>
+}
+
+class Listener {
+  -#id: string
+  +Listener(id: string)
+  +id(): string
+  +update(message: AbstractMessage): Promise<void>
+}
+
+class Publisher {
+  -#listeners: Set<AbstractListener>
+  +addListener(listener: AbstractListener): Promise<void>
+  +removeListener(listener: AbstractListener): Promise<void>
+  +notifyListeners(message: AbstractMessage): Promise<void>
+}
+
+Publisher --> Listener: notifies
+Publisher --> AbstractListener: adds/removes
+Listener --> Message: updates
+@enduml

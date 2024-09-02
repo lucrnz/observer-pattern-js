@@ -1,0 +1,13 @@
+@startuml
+start
+:Publisher created;
+:Listeners created;
+:Publisher adds Listener A;
+:Publisher adds Listener B;
+:Message created;
+:Publisher notifies all Listeners;
+repeat
+:Listener updates with Message;
+repeat while (all Listeners notified?)
+stop
+@enduml

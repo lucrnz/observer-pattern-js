@@ -2,6 +2,12 @@
 
 I wrote this repo to show how I would implement the observer pattern in JavaScript, it also includes an implementation written in TypeScript.
 
+## Diagrams
+
+![UML diagram](./uml/diagram-rendered.svg)
+
+![Flowchart](./uml/flowchart-rendered.svg)
+
 ## Usage
 
 You need to have Node.js installed.
