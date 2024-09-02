@@ -1,0 +1,19 @@
+{
+  "name": "observer-pattern-js",
+  "license": "MIT",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "start:js": "node main.js",
+    "start:ts": "tsx main.ts"
+  },
+  "keywords": [],
+  "author": "Luciano Hillcoat <lucdev.net>",
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
