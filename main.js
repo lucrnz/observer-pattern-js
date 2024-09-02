@@ -1,10 +1,12 @@
 /**
  * @abstract
  */
-class BroadcastedEvent {
+class AbstractMessage {
   constructor() {
-    if (new.target === BroadcastedEvent) {
-      throw new TypeError("Cannot construct BroadcastedEvent instances directly");
+    if (new.target === AbstractMessage) {
+      throw new TypeError(
+        "Cannot construct AbstractMessage instances directly",
+      );
     }
   }
 
@@ -12,7 +14,7 @@ class BroadcastedEvent {
    * @abstract
    * @returns {Record<string, unknown>}
    */
-  get data() {
+  get payload() {
     throw new Error("Not implemented");
   }
 }
@@ -20,21 +22,21 @@ class BroadcastedEvent {
 /**
  * @abstract
  */
-class NotifiableEntity {
+class AbstractListener {
   constructor() {
-    if (new.target === NotifiableEntity) {
+    if (new.target === AbstractListener) {
       throw new TypeError(
-        "Cannot construct NotifiableEntity instances directly"
+        "Cannot construct AbstractListener instances directly",
       );
     }
   }
 
   /**
    * @abstract
-   * @params {BroadcastedEvent} event
+   * @params {AbstractMessage} message
    * @returns {Promise<void>}
    */
-  async notify(event) {
+  async update(message) {
     throw new Error("Not implemented");
   }
 
@@ -50,97 +52,91 @@ class NotifiableEntity {
 /**
  * @abstract
  */
-class BroadcastEntity {
+class AbstractPublisher {
   constructor() {
-    if (new.target === BroadcastEntity) {
+    if (new.target === AbstractPublisher) {
       throw new TypeError(
-        "Cannot construct BroadcastEntity instances directly"
+        "Cannot construct AbstractPublisher instances directly",
       );
     }
   }
 
   /**
    * @abstract
-   * @param {NotifiableEntity} subscriber
+   * @param {AbstractListener} listener
    * @returns {Promise<void>}
    */
-  async subscribe(subscriber) {
-    if (!subscriber instanceof NotifiableEntity) {
-      throw TypeError("subscriber must be a NotifiableEntity");
+  async addListener(listener) {
+    if (!(listener instanceof AbstractListener)) {
+      throw TypeError("listener must be an AbstractListener");
     }
     throw new Error("Not implemented");
   }
 
   /**
    * @abstract
-   * @param {NotifiableEntity} subscriber
+   * @param {AbstractListener} listener
    * @returns {Promise<void>}
    */
-  async unsubscribe(subscriber) {
-    if (!subscriber instanceof NotifiableEntity) {
-      throw TypeError("subscriber must be a NotifiableEntity");
+  async removeListener(listener) {
+    if (!(listener instanceof AbstractListener)) {
+      throw TypeError("listener must be an AbstractListener");
     }
     throw new Error("Not implemented");
   }
 
   /**
    * @abstract
-   * @param {BroadcastedEvent} event
+   * @param {AbstractMessage} message
    * @returns {Promise<void>}
    */
-  async broadcast(event) {
-    if (!event instanceof BroadcastedEvent) {
-      throw TypeError("event must be a BroadcastedEvent");
+  async notifyListeners(message) {
+    if (!(message instanceof AbstractMessage)) {
+      throw TypeError("message must be an AbstractMessage");
     }
     throw new Error("Not implemented");
   }
 }
 
-class NotifierEntity extends BroadcastEntity {
-  #subscribers = new Set();
+class Publisher extends AbstractPublisher {
+  #listeners = new Set();
 
   /**
-   * @param {NotifiableEntity} subscriber
+   * @param {AbstractListener} listener
    * @returns {Promise<void>}
    */
-  async subscribe(subscriber) {
-    console.log("subscribe", subscriber.id);
-    this.#subscribers.add(subscriber);
+  async addListener(listener) {
+    console.log("addListener", listener.id);
+    this.#listeners.add(listener);
   }
 
   /**
-   * @param {NotifiableEntity} subscriber
+   * @param {AbstractListener} listener
    * @returns {Promise<void>}
    */
-  async unsubscribe(subscriber) {
-    console.log("unsubscribe", subscriber.id);
-    const found = false;
-
-    for (const s of this.#subscribers) {
-      if (s.id === subscriber.id) {
-        this.#subscribers.delete(s);
-        found = true;
+  async removeListener(listener) {
+    console.log("removeListener", listener.id);
+    for (const l of this.#listeners) {
+      if (l.id === listener.id) {
+        this.#listeners.delete(l);
         break;
       }
     }
-
-    if (!found) {
-      throw new Error("subscriber not found");
-    }
+    throw new Error("Listener not found");
   }
 
   /**
-   * @param {BroadcastedEvent} event
+   * @param {AbstractMessage} message
    * @returns {Promise<void>}
    */
-  async broadcast(event) {
-    for (const s of this.#subscribers) {
-      s.notify(event);
+  async notifyListeners(message) {
+    for (const l of this.#listeners) {
+      await l.update(message);
     }
   }
 }
 
-class User extends NotifiableEntity {
+class Listener extends AbstractListener {
   #id;
 
   constructor(id) {
@@ -157,46 +153,46 @@ class User extends NotifiableEntity {
   }
 
   /**
-   * @abstract
-   * @param {BroadcastedEvent} event
+   * @param {AbstractMessage} message
    * @returns {Promise<void>}
    * @override
    */
-  async notify(event) {
-    console.log("notify", event.data);
-    console.log("to user", this.#id);
+  async update(message) {
+    console.log("update", message.payload);
+    console.log("to listener", this.#id);
   }
 }
 
-class EmailEvent extends BroadcastedEvent {
+class Message extends AbstractMessage {
   #subject;
-  #body;
+  #content;
 
-  constructor(subject, body) {
+  constructor(subject, content) {
     super();
     this.#subject = subject;
-    this.#body = body;
+    this.#content = content;
   }
 
-  get data() {
+  get payload() {
     return {
       subject: this.#subject,
-      body: this.#body,
+      content: this.#content,
     };
   }
 }
 
-const ne = new NotifierEntity();
+// Example usage:
+const publisher = new Publisher();
 
-const userA = new User("Alice");
-const userB = new User("Bob");
+const listenerA = new Listener("Alice");
+const listenerB = new Listener("Bob");
 
-ne.subscribe(userA);
-ne.subscribe(userB);
+publisher.addListener(listenerA);
+publisher.addListener(listenerB);
 
-const email = new EmailEvent(
+const message = new Message(
   "Mailing list update",
-  "Welcome to all members!\nThis is the mailing list.\nPlease try our new product, you can find it at https://example.com.\nGreetings!"
+  "Welcome to all members!\nThis is the mailing list.\nPlease try our new product, you can find it at https://example.com.\nGreetings!",
 );
 
-ne.broadcast(email);
+publisher.notifyListeners(message);
