@@ -99,6 +99,9 @@ class AbstractPublisher {
 }
 
 class Publisher extends AbstractPublisher {
+  /**
+   * @type {Set<AbstractListener>}
+   */
   #listeners = new Set();
 
   /**
@@ -137,8 +140,14 @@ class Publisher extends AbstractPublisher {
 }
 
 class Listener extends AbstractListener {
+  /**
+   * @type {string}
+   */
   #id;
 
+  /**
+   * @param {string} id
+   */
   constructor(id) {
     super();
     this.#id = id;
@@ -164,9 +173,19 @@ class Listener extends AbstractListener {
 }
 
 class Message extends AbstractMessage {
+  /**
+   * @type {string}
+   */
   #subject;
+  /**
+   * @type {string}
+   */
   #content;
 
+  /**
+   * @param {string} subject
+   * @param {string} content
+   */
   constructor(subject, content) {
     super();
     this.#subject = subject;
