@@ -2,6 +2,8 @@
 
 I wrote this repo to show how I would implement the observer pattern in JavaScript, it also includes an implementation written in TypeScript.
 
+You can read the [full blog post here](https://lucdev.net/blog/observer-pattern-javascript/).
+
 ## Diagrams
 
 ![UML diagram](./uml/diagram-rendered.svg)
